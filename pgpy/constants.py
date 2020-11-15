@@ -6,6 +6,7 @@ import imghdr
 import os
 import time
 import zlib
+import lzma
 
 from collections import namedtuple
 from enum import Enum
@@ -294,6 +295,8 @@ class CompressionAlgorithm(IntEnum):
     ZLIB = 0x02
     #: Bzip2
     BZ2 = 0x03
+	#: LZMA
+    XZ = 0x04
 
     def compress(self, data):
         if self is CompressionAlgorithm.Uncompressed:
@@ -307,6 +310,9 @@ class CompressionAlgorithm(IntEnum):
 
         if self is CompressionAlgorithm.BZ2:
             return bz2.compress(data)
+
+        if self is CompressionAlgorithm.XZ:
+            return lzma.compress(data, filters=[{'id': lzma.FILTER_LZMA2, 'preset': 9 | lzma.PRESET_EXTREME}])
 
         raise NotImplementedError(self)
 
@@ -326,6 +332,9 @@ class CompressionAlgorithm(IntEnum):
         if self is CompressionAlgorithm.BZ2:
             return bz2.decompress(data)
 
+        if self is CompressionAlgorithm.XZ:
+            return lzma.decompress(data)
+
         raise NotImplementedError(self)
 
 
@@ -343,6 +352,17 @@ class HashAlgorithm(IntEnum):
     SHA384 = 0x09
     SHA512 = 0x0A
     SHA224 = 0x0B
+    _private_experimental_00 = 0x64
+    _private_experimental_01 = 0x65
+    _private_experimental_02 = 0x66
+    _private_experimental_03 = 0x67
+    _private_experimental_04 = 0x68
+    _private_experimental_05 = 0x69
+    _private_experimental_06 = 0x6A
+    _private_experimental_07 = 0x6B
+    _private_experimental_08 = 0x6C
+    _private_experimental_09 = 0x6D
+    _private_experimental_10 = 0x6E
 
     def __init__(self, *args):
         super(self.__class__, self).__init__()
